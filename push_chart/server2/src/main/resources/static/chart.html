@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.6.5/rickshaw.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.min.js"></script>
+</head>
+<body>
+
+<div id="chart_container">
+    <div id="chart"></div>
+    <div id="x_axis"></div>
+</div>
+
+<script>
+  var interval = 1;
+  // set up the graph
+  var graph = new Rickshaw.Graph({
+    element       : document.getElementById('chart'),
+    width         : 600,
+    height        : 200,
+    min           : 0,
+    max           : 1,
+    renderer      : 'line',
+    series        : new Rickshaw.Series.FixedDuration([{name : 'cpuload'}], undefined, {
+      timeInterval  : interval,
+      maxDataPoints : 200
+    })
+  });
+  // set up the x-axis
+  var x_ticks = new Rickshaw.Graph.Axis.X({
+    graph         : graph,
+    orientation   : 'bottom',
+    element       : document.getElementById('x_axis'),
+    pixelsPerTick : 200,
+    tickFormat    : function(t) {
+      return new Date(t * 1000).toLocaleTimeString();
+    }
+  });
+  graph.render();
+  // SSE connection
+  var source = new EventSource('http://localhost:8090/chart/data');
+  source.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var value = data.y * 100;
+    console.log(value);
+    graph.series.addData(data);
+    console.log(graph.series);
+
+    graph.render();
+  };
+  source.onerror = function(e) {
+    source.close();
+  };
+</script>
+
+</body>
