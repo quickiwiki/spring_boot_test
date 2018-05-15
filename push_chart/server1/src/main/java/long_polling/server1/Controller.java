@@ -16,8 +16,8 @@ public class Controller
 {
     private final AtomicInteger counter = new AtomicInteger(0);
 
-    //@GetMapping(produces=MediaType.TEXT_EVENT_STREAM_VALUE, value="/data")
-    @GetMapping(produces=MediaType.APPLICATION_STREAM_JSON_VALUE, value="/data")
+    @GetMapping(produces=MediaType.TEXT_EVENT_STREAM_VALUE, value="/data")
+    //@GetMapping(produces=MediaType.APPLICATION_STREAM_JSON_VALUE, value="/data")
     Flux<DataItem> data()
     {
         Flux<DataItem> dataItemFlux = Flux.fromStream(Stream.generate(() -> new DataItem(counter.getAndIncrement() * 1.0, DataItem.random()) ));
